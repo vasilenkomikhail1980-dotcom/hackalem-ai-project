@@ -1,0 +1,22 @@
+# Secrets
+.env
+*.key
+*.pem
+jwt.hex
+jwt/
+
+# Ethereum node data
+execution/*
+!execution/.gitkeep
+consensus/*
+!consensus/.gitkeep
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Editor/temp files
+*.swp
+*~

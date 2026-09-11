@@ -1,0 +1,45 @@
+services:
+  geth:
+    image: ethereum/client-go:stable
+    container_name: noda-geth
+    restart: unless-stopped
+    command:
+      - --sepolia
+      - --datadir=/data
+      - --syncmode=snap
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/jwt/jwt.hex
+    ports:
+      - "127.0.0.1:8545:8545"
+      - "30303:30303"
+      - "30303:30303/udp"
+    volumes:
+      - ./execution:/data
+      - ./jwt:/jwt:ro
+
+  prysm:
+    image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
+    container_name: noda-prysm
+    restart: unless-stopped
+    depends_on:
+      - geth
+    command:
+      - --sepolia
+      - --datadir=/data
+      - --execution-endpoint=http://geth:8551
+      - --jwt-secret=/jwt/jwt.hex
+      - --accept-terms-of-use
+      - --grpc-gateway-host=0.0.0.0
+    ports:
+      - "127.0.0.1:3500:3500"
+      - "13000:13000"
+      - "12000:12000/udp"
+    volumes:
+      - ./consensus:/data
+      - ./jwt:/jwt:ro
