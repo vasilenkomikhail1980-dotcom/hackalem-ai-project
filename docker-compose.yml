@@ -24,7 +24,7 @@ services:
       - ./jwt:/jwt:ro
 
   prysm:
-    image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
+    image: gcr.io/offchainlabs/prysm/beacon-chain:stable
     container_name: noda-prysm
     restart: unless-stopped
     depends_on:
