@@ -2,11 +2,25 @@
 set -eu
 
 echo "Checking Geth RPC..."
-curl -s -X POST http://127.0.0.1:8545 \
+GETH_RESPONSE=$(curl -fsS -X POST http://127.0.0.1:8545 \
   -H "Content-Type: application/json" \
-  --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
-echo
+  --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}')
+
+echo "$GETH_RESPONSE" | grep -q '"result"' || {
+  echo "ERROR: Geth RPC returned no result"
+  exit 1
+}
+
+echo "Geth RPC OK"
 
 echo "Checking Prysm beacon health..."
-curl -s -o /dev/null -w "HTTP %{http_code}\n" \
-  http://127.0.0.1:3500/eth/v1/node/health
+PRYSM_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+  http://127.0.0.1:3500/eth/v1/node/health)
+
+if [ "$PRYSM_CODE" != "200" ]; then
+  echo "ERROR: Prysm health returned HTTP $PRYSM_CODE"
+  exit 1
+fi
+
+echo "Prysm health OK"
+echo "Node healthcheck passed"
